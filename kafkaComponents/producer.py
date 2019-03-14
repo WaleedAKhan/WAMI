@@ -20,26 +20,32 @@ s = api.GetStreamFilter(track=['CIHI', 'health canada', 'Canadian Institute for 
 
 for t in s:
     if not t.get('retweeted_status'):
-        #print(t.get('id'))
-        tweet = api.GetStatus(t.get('id'))
-        #Serialize to JSON
-        data = {}
-        data['id'] = tweet.id
-        data['text'] = tweet.full_text
-        data['hashtags'] = str(tweet.hashtags)
-        data['userName'] = tweet.user.name
-        data['userScreenName'] = tweet.user.screen_name
-        data['createdAt'] = tweet.created_at
-        data['userLocation'] = tweet.user.location
-        data['userFollowers'] = tweet.user.followers_count
-        data['userFollowing'] = tweet.user.friends_count
+        try:
+            
+            print(t)
+            #print(t.get('id'))
+            tweet = api.GetStatus(t.get('id'))
+            #Serialize to JSON
+            data = {}
+            data['id'] = tweet.id
+            data['text'] = tweet.full_text
+            data['hashtags'] = str(tweet.hashtags)
+            data['userName'] = tweet.user.name
+            data['userScreenName'] = tweet.user.screen_name
+            data['createdAt'] = tweet.created_at
+            data['userLocation'] = tweet.user.location
+            data['userFollowers'] = tweet.user.followers_count
+            data['userFollowing'] = tweet.user.friends_count
         
         
-        jsonData = json.dumps(data)
-        print(tweet)
-        #producer.send_messages('test', t.get('full_text').encode('utf-8'))
-        #producer.send_messages('test', tweet.full_text.encode('utf-8'))
-        producer.send('test', jsonData)
+            jsonData = json.dumps(data)
+            print(tweet)
+            #producer.send_messages('test', t.get('full_text').encode('utf-8'))
+            #producer.send_messages('test', tweet.full_text.encode('utf-8'))
+            producer.send('test', jsonData)
+        
+        except:
+            print("Error occured")
         
                   
 

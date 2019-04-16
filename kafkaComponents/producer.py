@@ -25,6 +25,7 @@ for t in s:
             print(t)
             #print(t.get('id'))
             tweet = api.GetStatus(t.get('id'))
+            
             #Serialize to JSON
             data = {}
             data['id'] = tweet.id
@@ -36,16 +37,18 @@ for t in s:
             data['userLocation'] = tweet.user.location
             data['userFollowers'] = tweet.user.followers_count
             data['userFollowing'] = tweet.user.friends_count
-        
-        
+            if t.get('quoted_status'):
+                data['quoted_status'] = tweet.quoted_status.text
+                data['quoted_status_full'] = tweet.quoted_status
+                print("\n" + data['quoted_status'])
             jsonData = json.dumps(data)
             print(tweet)
             #producer.send_messages('test', t.get('full_text').encode('utf-8'))
             #producer.send_messages('test', tweet.full_text.encode('utf-8'))
             producer.send('test', jsonData)
         
-        except:
-            print("Error occured")
+        except Exception as e:
+            print("Error occured" + str(e))
         
                   
 

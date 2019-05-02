@@ -49,6 +49,56 @@ def getWatsonNLP(text):
 
     return response
 
+subscription_key = '379ac63df58c440196f76b85271d66f4'
+assert subscription_key
+
+text_analytics_base_url  = 'https://canadacentral.api.cognitive.microsoft.com/text/analytics/v2.1/'
+
+
+def getAzureSentiment(text):
+    
+    sentiment_api_url = text_analytics_base_url + "sentiment"
+
+    documents = {'documents' : [{'id': '1', 'language': 'en', 'text': text}]}
+
+    
+    headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
+    response  = requests.post(sentiment_api_url, headers=headers, json=documents)
+    
+    sentiments = response.json()
+    print(sentiments)
+    return sentiments['documents'][0]['score']
+
+
+def getAzureEntities(text):
+    
+    entity_linking_api_url = text_analytics_base_url + "entities"
+
+    documents = {'documents' : [{'id': '1', 'language': 'en', 'text': text}]}
+
+    headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
+    response  = requests.post(entity_linking_api_url, headers=headers, json=documents)
+    entities = response.json()
+
+    return entities['documents'][0]['entities']
+    
+
+def getAzureKeyPhrases(text):
+
+    key_phrase_api_url = text_analytics_base_url + "keyPhrases"
+
+    documents = {'documents' : [{'id': '1', 'language': 'en', 'text': text}]}
+
+    headers   = {'Ocp-Apim-Subscription-Key': subscription_key}
+    response  = requests.post(key_phrase_api_url, headers=headers, json=documents)
+    key_phrases = response.json()
+
+    return key_phrases['documents'][0]['keyPhrases']    
+
+
+
+
+
 
 _id = 0
 for msg in consumer:
@@ -113,10 +163,24 @@ for msg in consumer:
             jsonBody['sent140Polarity'] = polarity
                         
             #Watson Sentiment
-            watsonResponse = getWatsonNLP(jsonBody['text'])        
-            jsonBody['watsonSentiment'] = watsonResponse['sentiment']
-            jsonBody['watsonKeywords'] = watsonResponse['keywords']
-            jsonBody['watsonEntities'] = watsonResponse['entities']      
+            #watsonResponse = getWatsonNLP(jsonBody['text'])        
+            #jsonBody['watsonSentiment'] = watsonResponse['sentiment']
+            #jsonBody['watsonKeywords'] = watsonResponse['keywords']
+            #jsonBody['watsonEntities'] = watsonResponse['entities']      
+
+            #azure Sentiment
+            azureSentiment = getAzureSentiment(jsonBody['text'])
+            jsonBody['azureSentiment'] = azureSentiment
+
+            #azureEntities 
+            azureEntities =  getAzureEntities(jsonBody['text'])
+            jsonBody['azureEntities'] = azureEntities
+
+            #azureKeyPhrases
+            azureKeyPhrases = getAzureKeyPhrases(jsonBody['text'])
+            jsonBody['azureKeyPhrases'] = azureKeyPhrases 
+
+    
 
             res = es.index(index="livetweets", id=_id, doc_type="_doc" , body=jsonBody)
         
